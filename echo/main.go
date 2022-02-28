@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"os"
@@ -9,6 +12,21 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
+
+func validateSignature(channelSecret, signature string, body []byte) bool {
+	decoded, err := base64.StdEncoding.DecodeString(signature)
+	if err != nil {
+		return false
+	}
+	hash := hmac.New(sha256.New, []byte(channelSecret))
+
+	_, err = hash.Write(body)
+	if err != nil {
+		return false
+	}
+
+	return hmac.Equal(decoded, hash.Sum(nil))
+}
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	bot, err := linebot.New(
@@ -20,6 +38,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	body := []byte(request.Body)
+
+	// リクエストがLINEから送られたものであることを検証する
+	if !validateSignature(os.Getenv("CHANNEL_SECRET"), request.Headers["x-line-signature"], body) {
+		return events.APIGatewayProxyResponse{StatusCode: 400}, linebot.ErrInvalidSignature
+	}
+
 	payload := &struct {
 		Events []*linebot.Event `json:"events"`
 	}{}
