@@ -43,6 +43,19 @@ Resources:
           Properties:
             Path: /echo
             Method: POST
+  InterestsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: interests
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
