@@ -45,6 +45,16 @@ Resources:
             Method: POST
       Policies:
         - AmazonDynamoDBFullAccess
+  SubscribeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: subscribe/
+      Handler: subscribe
+      Runtime: go1.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AmazonDynamoDBFullAccess
   InterestsTable:
       Type: AWS::DynamoDB::Table
       Properties:
