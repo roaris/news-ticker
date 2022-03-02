@@ -43,6 +43,8 @@ Resources:
           Properties:
             Path: /echo
             Method: POST
+      Policies:
+        - AmazonDynamoDBFullAccess
   InterestsTable:
       Type: AWS::DynamoDB::Table
       Properties:
