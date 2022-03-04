@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+
+	"github.com/roaris/news-ticker/flex"
 
 	"github.com/roaris/news-ticker/newsapi"
 
@@ -36,9 +39,13 @@ func subscribe() {
 			if err != nil {
 				bot.PushMessage(userID, linebot.NewTextMessage("ニュースの取得に失敗しました...")).Do()
 			} else {
+				var bubbles []*linebot.BubbleContainer
 				for _, article := range articlesWrapper.Articles {
-					bot.PushMessage(userID, linebot.NewTextMessage(article.Title)).Do()
+					var bubble = flex.NewBubbleContainer(article)
+					bubbles = append(bubbles, &bubble)
 				}
+				caroucel := flex.NewCaroucelContainer(bubbles)
+				bot.PushMessage(userID, linebot.NewTextMessage(fmt.Sprintf("%sのニュースです", categoryName)), linebot.NewFlexMessage(fmt.Sprintf("%sの記事です", categoryName), &caroucel)).Do()
 			}
 		}
 	}
