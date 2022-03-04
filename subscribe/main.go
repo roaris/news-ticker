@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/roaris/news-ticker/newsapi"
+
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -26,8 +28,18 @@ func subscribe() {
 
 	for _, item := range result.Items {
 		userID := *item["user_id"].S
-		if _, err := bot.PushMessage(userID, linebot.NewTextMessage("定期送信")).Do(); err != nil {
-			log.Print(err)
+
+		for _, category := range item["categories"].L {
+			categoryName := *category.S
+			articlesWrapper, err := newsapi.RequestArticles(categoryName)
+
+			if err != nil {
+				bot.PushMessage(userID, linebot.NewTextMessage("ニュースの取得に失敗しました...")).Do()
+			} else {
+				for _, article := range articlesWrapper.Articles {
+					bot.PushMessage(userID, linebot.NewTextMessage(article.Title)).Do()
+				}
+			}
 		}
 	}
 }
