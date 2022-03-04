@@ -16,6 +16,16 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+var categoryEnToJa = map[string]string{
+	"business":      "ビジネス",
+	"entertainment": "エンタメ",
+	"general":       "時事",
+	"health":        "健康",
+	"science":       "科学",
+	"sports":        "スポーツ",
+	"technology":    "テクノロジー",
+}
+
 func subscribe() {
 	bot, err := linebot.New(
 		os.Getenv("CHANNEL_SECRET"),
@@ -45,7 +55,9 @@ func subscribe() {
 					bubbles = append(bubbles, &bubble)
 				}
 				caroucel := flex.NewCaroucelContainer(bubbles)
-				bot.PushMessage(userID, linebot.NewTextMessage(fmt.Sprintf("%sのニュースです", categoryName)), linebot.NewFlexMessage(fmt.Sprintf("%sの記事です", categoryName), &caroucel)).Do()
+				bot.PushMessage(userID, linebot.NewTextMessage(
+					fmt.Sprintf("%sのニュースです", categoryEnToJa[categoryName])),
+					linebot.NewFlexMessage(fmt.Sprintf("%sの記事です", categoryEnToJa[categoryName]), &caroucel)).Do()
 			}
 		}
 	}
