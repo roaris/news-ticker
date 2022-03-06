@@ -10,7 +10,7 @@ type ArticlesWrapper struct {
 
 type Article struct {
 	Source struct {
-		Id   int    `json:"id"`
+		Id   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"source"`
 	Author      string    `json:"author"`
