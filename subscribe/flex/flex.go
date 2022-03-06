@@ -23,6 +23,7 @@ func NewBubbleContainer(article newsapi.Article) linebot.BubbleContainer {
 		Hero: &linebot.ImageComponent{
 			Type: "image",
 			URL:  article.UrlToImage,
+			Size: "5xl",
 		},
 		Footer: &linebot.BoxComponent{
 			Type:   "box",
