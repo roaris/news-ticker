@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
@@ -33,6 +35,19 @@ func AddCategory(ddb *dynamodb.DynamoDB, userID string, category string) error {
 			":c": {L: []*dynamodb.AttributeValue{&dynamodb.AttributeValue{S: aws.String(category)}}},
 		},
 		UpdateExpression: aws.String("SET #C = list_append(#C, :c)"),
+		TableName:        aws.String("interests"),
+	}
+	_, err := ddb.UpdateItem(input)
+	return err
+}
+
+// カテゴリを削除する
+func RemoveCategory(ddb *dynamodb.DynamoDB, userID string, index int) error {
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"user_id": {S: aws.String(userID)},
+		},
+		UpdateExpression: aws.String(fmt.Sprintf("REMOVE categories[%d]", index)),
 		TableName:        aws.String("interests"),
 	}
 	_, err := ddb.UpdateItem(input)

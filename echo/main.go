@@ -69,6 +69,42 @@ func handleAdd(bot *linebot.Client, event *linebot.Event, ddb *dynamodb.DynamoDB
 	replyMessage(bot, event.ReplyToken, fmt.Sprintf("カテゴリを追加しました\n現在のカテゴリは%sです", concatCategories(newCategories)))
 }
 
+func handleRemove(bot *linebot.Client, event *linebot.Event, ddb *dynamodb.DynamoDB, removeCategory string) {
+	if _, ok := categories[removeCategory]; !ok {
+		replyMessage(bot, event.ReplyToken, "カテゴリはビジネス、エンタメ、時事、健康、科学、スポーツ、テクノロジーから選ぶことができます")
+		return
+	}
+	categories, err := models.GetCategories(ddb, event.Source.UserID)
+	if err != nil {
+		replyMessage(bot, event.ReplyToken, "カテゴリの削除に失敗しました...")
+		return
+	}
+	for i, category := range categories {
+		if *category.S == removeCategory {
+			if err := models.RemoveCategory(ddb, event.Source.UserID, i); err != nil {
+				replyMessage(bot, event.ReplyToken, "カテゴリの削除に失敗しました...")
+			} else {
+				newCategories := append(categories[:i], categories[i+1:]...)
+				var message string
+				if len(newCategories) > 0 {
+					message = fmt.Sprintf("カテゴリを削除しました\n現在のカテゴリは%sです", concatCategories(newCategories))
+				} else {
+					message = "カテゴリを削除しました\nニュースの送信を停止します"
+				}
+				replyMessage(bot, event.ReplyToken, message)
+			}
+			return
+		}
+	}
+	var message string
+	if len(categories) > 0 {
+		message = fmt.Sprintf("そのカテゴリは追加されていません\n現在のカテゴリは%sです", concatCategories(categories))
+	} else {
+		message = "そのカテゴリは追加されていません\n現在登録されているカテゴリはありません"
+	}
+	replyMessage(bot, event.ReplyToken, message)
+}
+
 func validateSignature(channelSecret, signature string, body []byte) bool {
 	decoded, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
@@ -132,6 +168,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 				case '+':
 					addCategory := text[1:]
 					handleAdd(bot, event, ddb, addCategory)
+				case '-':
+					removeCategory := text[1:]
+					handleRemove(bot, event, ddb, removeCategory)
 				default:
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
 						log.Print(err)
