@@ -150,7 +150,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			// あいさつメッセージは管理画面で設定
 			// デフォルトの興味は時事のみ
 			if err := models.AddRecord(ddb, event.Source.UserID, "時事"); err != nil {
-				log.Print(err)
+				replyMessage(bot, event.ReplyToken, "ユーザー登録に失敗しました...\n一度このアカウントをブロックしてから、解除すると上手くいくかもしれません")
 			}
 		} else if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
