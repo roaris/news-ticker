@@ -16,14 +16,14 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-var categoryEnToJa = map[string]string{
-	"business":      "ビジネス",
-	"entertainment": "エンタメ",
-	"general":       "時事",
-	"health":        "健康",
-	"science":       "科学",
-	"sports":        "スポーツ",
-	"technology":    "テクノロジー",
+var categoryJaToEn = map[string]string{
+	"ビジネス":   "business",
+	"エンタメ":   "entertainment",
+	"時事":     "general",
+	"健康":     "health",
+	"科学":     "science",
+	"スポーツ":   "sports",
+	"テクノロジー": "technology",
 }
 
 func subscribe() {
@@ -44,7 +44,7 @@ func subscribe() {
 
 		for _, category := range item["categories"].L {
 			categoryName := *category.S
-			articlesWrapper, err := newsapi.RequestArticles(categoryName)
+			articlesWrapper, err := newsapi.RequestArticles(categoryJaToEn[categoryName])
 
 			if err != nil {
 				bot.PushMessage(userID, linebot.NewTextMessage("ニュースの取得に失敗しました...")).Do()
@@ -56,8 +56,8 @@ func subscribe() {
 				}
 				caroucel := flex.NewCaroucelContainer(bubbles)
 				bot.PushMessage(userID, linebot.NewTextMessage(
-					fmt.Sprintf("%sのニュースです", categoryEnToJa[categoryName])),
-					linebot.NewFlexMessage(fmt.Sprintf("%sの記事です", categoryEnToJa[categoryName]), &caroucel)).Do()
+					fmt.Sprintf("%sのニュースです", categoryName)),
+					linebot.NewFlexMessage(fmt.Sprintf("%sの記事です", categoryName), &caroucel)).Do()
 			}
 		}
 	}

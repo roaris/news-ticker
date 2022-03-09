@@ -59,12 +59,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	for _, event := range payload.Events {
 		if event.Type == linebot.EventTypeFollow { // 友達追加時とブロック解除時
 			// あいさつメッセージは管理画面で設定
-			// デフォルトの興味はbusinessのみ
+			// デフォルトの興味は時事のみ
 			userID := event.Source.UserID
 			input := &dynamodb.PutItemInput{
 				Item: map[string]*dynamodb.AttributeValue{
 					"user_id":    {S: aws.String(userID)},
-					"categories": {L: []*dynamodb.AttributeValue{&dynamodb.AttributeValue{S: aws.String("business")}}},
+					"categories": {L: []*dynamodb.AttributeValue{&dynamodb.AttributeValue{S: aws.String("時事")}}},
 				},
 				TableName: aws.String("interests"),
 			}
