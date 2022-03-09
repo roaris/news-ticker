@@ -172,9 +172,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 					removeCategory := text[1:]
 					handleRemove(bot, event, ddb, removeCategory)
 				default:
-					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
-						log.Print(err)
-					}
+					replyMessage(bot, event.ReplyToken, "カテゴリを追加する時は+カテゴリ名、削除する時は-カテゴリ名と送信してください\nカテゴリはビジネス、エンタメ、時事、健康、科学、スポーツ、テクノロジーから選ぶことができます")
 				}
 			}
 		}
