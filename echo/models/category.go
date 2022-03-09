@@ -41,13 +41,10 @@ func AddCategory(ddb *dynamodb.DynamoDB, userID string, category string) error {
 		Key: map[string]*dynamodb.AttributeValue{
 			"user_id": {S: aws.String(userID)},
 		},
-		ExpressionAttributeNames: map[string]*string{
-			"#C": aws.String("categories"),
-		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":c": {L: []*dynamodb.AttributeValue{&dynamodb.AttributeValue{S: aws.String(category)}}},
 		},
-		UpdateExpression: aws.String("SET #C = list_append(#C, :c)"),
+		UpdateExpression: aws.String("SET categories = list_append(categories, :c)"),
 		TableName:        aws.String("interests"),
 	}
 	_, err := ddb.UpdateItem(input)
