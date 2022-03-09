@@ -7,6 +7,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
+// レコードを追加する
+func AddRecord(ddb *dynamodb.DynamoDB, userID string, category string) error {
+	input := &dynamodb.PutItemInput{
+		Item: map[string]*dynamodb.AttributeValue{
+			"user_id":    {S: aws.String(userID)},
+			"categories": {L: []*dynamodb.AttributeValue{&dynamodb.AttributeValue{S: aws.String(category)}}},
+		},
+		TableName: aws.String("interests"),
+	}
+	_, err := ddb.PutItem(input)
+	return err
+}
+
 // 特定のユーザーのカテゴリを取得する
 func GetCategories(ddb *dynamodb.DynamoDB, userID string) ([]*dynamodb.AttributeValue, error) {
 	input := &dynamodb.GetItemInput{

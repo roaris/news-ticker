@@ -149,15 +149,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		if event.Type == linebot.EventTypeFollow { // 友達追加時とブロック解除時
 			// あいさつメッセージは管理画面で設定
 			// デフォルトの興味は時事のみ
-			userID := event.Source.UserID
-			input := &dynamodb.PutItemInput{
-				Item: map[string]*dynamodb.AttributeValue{
-					"user_id":    {S: aws.String(userID)},
-					"categories": {L: []*dynamodb.AttributeValue{&dynamodb.AttributeValue{S: aws.String("時事")}}},
-				},
-				TableName: aws.String("interests"),
-			}
-			if _, err = ddb.PutItem(input); err != nil {
+			if err := models.AddRecord(ddb, event.Source.UserID, "時事"); err != nil {
 				log.Print(err)
 			}
 		} else if event.Type == linebot.EventTypeMessage {
