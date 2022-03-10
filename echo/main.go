@@ -21,7 +21,6 @@ import (
 var categories = map[string]struct{}{
 	"ビジネス":   struct{}{},
 	"エンタメ":   struct{}{},
-	"時事":     struct{}{},
 	"健康":     struct{}{},
 	"科学":     struct{}{},
 	"スポーツ":   struct{}{},
@@ -47,7 +46,7 @@ func replyMessage(bot *linebot.Client, replyToken string, message string) {
 
 func handleAdd(bot *linebot.Client, event *linebot.Event, ddb *dynamodb.DynamoDB, addCategory string) {
 	if _, ok := categories[addCategory]; !ok {
-		replyMessage(bot, event.ReplyToken, "カテゴリはビジネス、エンタメ、時事、健康、科学、スポーツ、テクノロジーから選ぶことができます")
+		replyMessage(bot, event.ReplyToken, "カテゴリはビジネス、エンタメ、健康、科学、スポーツ、テクノロジーから選ぶことができます")
 		return
 	}
 	categories, err := models.GetCategories(ddb, event.Source.UserID)
@@ -71,7 +70,7 @@ func handleAdd(bot *linebot.Client, event *linebot.Event, ddb *dynamodb.DynamoDB
 
 func handleRemove(bot *linebot.Client, event *linebot.Event, ddb *dynamodb.DynamoDB, removeCategory string) {
 	if _, ok := categories[removeCategory]; !ok {
-		replyMessage(bot, event.ReplyToken, "カテゴリはビジネス、エンタメ、時事、健康、科学、スポーツ、テクノロジーから選ぶことができます")
+		replyMessage(bot, event.ReplyToken, "カテゴリはビジネス、エンタメ、健康、科学、スポーツ、テクノロジーから選ぶことができます")
 		return
 	}
 	categories, err := models.GetCategories(ddb, event.Source.UserID)
@@ -148,8 +147,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	for _, event := range payload.Events {
 		if event.Type == linebot.EventTypeFollow { // 友達追加時とブロック解除時
 			// あいさつメッセージは管理画面で設定
-			// デフォルトの興味は時事のみ
-			if err := models.AddRecord(ddb, event.Source.UserID, "時事"); err != nil {
+			// デフォルトの興味はビジネスのみ
+			if err := models.AddRecord(ddb, event.Source.UserID, "ビジネス"); err != nil {
 				replyMessage(bot, event.ReplyToken, "ユーザー登録に失敗しました...\n一度このアカウントをブロックしてから、解除すると上手くいくかもしれません")
 			}
 		} else if event.Type == linebot.EventTypeMessage {
@@ -164,7 +163,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 					removeCategory := text[1:]
 					handleRemove(bot, event, ddb, removeCategory)
 				default:
-					replyMessage(bot, event.ReplyToken, "カテゴリを追加する時は+カテゴリ名、削除する時は-カテゴリ名と送信してください\nカテゴリはビジネス、エンタメ、時事、健康、科学、スポーツ、テクノロジーから選ぶことができます")
+					replyMessage(bot, event.ReplyToken, "カテゴリを追加する時は+カテゴリ名、削除する時は-カテゴリ名と送信してください\nカテゴリはビジネス、エンタメ、健康、科学、スポーツ、テクノロジーから選ぶことができます")
 				}
 			}
 		}

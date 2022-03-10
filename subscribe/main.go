@@ -19,7 +19,6 @@ import (
 var categoryJaToEn = map[string]string{
 	"ビジネス":   "business",
 	"エンタメ":   "entertainment",
-	"時事":     "general",
 	"健康":     "health",
 	"科学":     "science",
 	"スポーツ":   "sports",
